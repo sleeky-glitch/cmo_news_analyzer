@@ -91,7 +91,7 @@ for idx, row in results.iterrows():
                             {"role": "system", "content": "You are a fact-checking assistant. Analyze the uploaded image for signs of fake or misleading news. If text is present, extract and analyze it. Explain your reasoning and suggest how to verify the claim, also provide a sentiment analysis and author of the claim, also try to provide original source."},
                             {"role": "user", "content": [
                                 {"type": "image_url", "image_url": {"url": image_data_url}}
-                            ]]
+                            ]}
                         ],
                         max_tokens=700,
                         temperature=0.2
