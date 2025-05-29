@@ -69,45 +69,40 @@ st.write(f"મળેલા પરિણામો: {len(results)}")
 # --- DISPLAY RESULTS WITH ANALYZE BUTTON ---
 for idx, row in results.iterrows():
     st.markdown("---")
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        if pd.notnull(row['article_date']):
-            st.write(f"**તારીખ:** {row['article_date'].strftime('%d-%m-%Y')}")
-        st.write(f"**Headline:** {row['headline']}")
-        st.write(f"**Full Text:** {row['full_text']}")
-    with col2:
-        image_name = row['image_name']
-        image_url = f"{RAW_GITHUB_URL}{IMAGES_FOLDER_PATH}/{image_name}"
-        try:
-            response = requests.get(image_url)
-            response.raise_for_status()
-            image_bytes = response.content
-            st.image(BytesIO(image_bytes), caption=image_name)
-            analyze_btn = st.button("Analyze", key=f"analyze_{idx}")
-            if analyze_btn:
-                with st.spinner("Analyzing image for fake news..."):
-                    mime = "image/jpeg" if image_name.lower().endswith((".jpg", ".jpeg")) else "image/png"
-                    b64 = base64.b64encode(image_bytes).decode()
-                    image_data_url = f"data:{mime};base64,{b64}"
-                    try:
-                        response = openai.chat.completions.create(
-                            model="gpt-4.1",
-                            messages=[
-                                {"role": "system", "content": "You are a fact-checking assistant. Analyze the uploaded image for signs of fake or misleading news. If text is present, extract and analyze it. Explain your reasoning and suggest how to verify the claim, also provide a sentiment analysis and author of the claim, also try to provide original source."},
-                                {"role": "user", "content": [
-                                    {"type": "image_url", "image_url": {"url": image_data_url}}
-                                ]}
-                            ],
-                            max_tokens=700,
-                            temperature=0.2
-                        )
-                        result = response.choices[0].message.content
-                        st.success("Analysis complete!")
-                        st.markdown("**AI Analysis:**")
-                        st.write(result)
-                    except Exception as e:
-                        st.error(f"Error: {e}")
-        except Exception as e:
-            st.warning(f"Image not found or error loading image: {image_name} - {e}")
+    if pd.notnull(row['article_date']):
+        st.write(f"**તારીખ:** {row['article_date'].strftime('%d-%m-%Y')}")
+    image_name = row['image_name']
+    image_url = f"{RAW_GITHUB_URL}{IMAGES_FOLDER_PATH}/{image_name}"
+    try:
+        response = requests.get(image_url)
+        response.raise_for_status()
+        image_bytes = response.content
+        st.image(BytesIO(image_bytes), caption=image_name)
+        analyze_btn = st.button("Analyze", key=f"analyze_{idx}")
+        if analyze_btn:
+            with st.spinner("Analyzing image for fake news..."):
+                mime = "image/jpeg" if image_name.lower().endswith((".jpg", ".jpeg")) else "image/png"
+                b64 = base64.b64encode(image_bytes).decode()
+                image_data_url = f"data:{mime};base64,{b64}"
+                try:
+                    response = openai.chat.completions.create(
+                        model="gpt-4.1",
+                        messages=[
+                            {"role": "system", "content": "You are a fact-checking assistant. Analyze the uploaded image for signs of fake or misleading news. If text is present, extract and analyze it. Explain your reasoning and suggest how to verify the claim, also provide a sentiment analysis and author of the claim, also try to provide original source."},
+                            {"role": "user", "content": [
+                                {"type": "image_url", "image_url": {"url": image_data_url}}
+                            ]]
+                        ],
+                        max_tokens=700,
+                        temperature=0.2
+                    )
+                    result = response.choices[0].message.content
+                    st.success("Analysis complete!")
+                    st.markdown("**AI Analysis:**")
+                    st.write(result)
+                except Exception as e:
+                    st.error(f"Error: {e}")
+    except Exception as e:
+        st.warning(f"Image not found or error loading image: {image_name} - {e}")
 
 st.info("Made with <3 by BSPL")
