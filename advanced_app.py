@@ -88,7 +88,7 @@ for idx, row in results.iterrows():
                     response = openai.chat.completions.create(
                         model="gpt-4.1",
                         messages=[
-                            {"role": "system", "content": "You are a fact-checking assistant. Analyze the uploaded image for signs of fake or misleading news. If text is present, extract and analyze it. Explain your reasoning and suggest how to verify the claim, also provide a sentiment analysis and author of the claim, also try to provide original source."},
+                            {"role": "system", "content": "You are a fact-checking assistant. First step is to categorize the image and extract tags from it. Analyze the uploaded image for signs of fake or misleading news. If text is present, extract and analyze it. Explain your reasoning and suggest how to verify the claim, also provide a sentiment analysis."},
                             {"role": "user", "content": [
                                 {"type": "image_url", "image_url": {"url": image_data_url}}
                             ]}
